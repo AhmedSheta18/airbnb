@@ -5,6 +5,7 @@ Property :
     - price/day 
     - description 
     - place *
+    - category *
 
     - rating*:
         - room show rating 
