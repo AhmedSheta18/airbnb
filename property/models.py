@@ -25,6 +25,7 @@ class Property(models.Model):
     
     def get_absolute_url(self):
         return reverse('property:property_detail', kwargs={'slug': self.slug})
+    
 
 
 class PropertyImage(models.Model):
@@ -69,8 +70,8 @@ class PropertyBooking(models.Model):
     property = models.ForeignKey("Property", related_name='booking_property', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='booking_user', on_delete=models.CASCADE)
     create_at = models.DateTimeField(default=timezone.now)
-    date_from = models.DateField()
-    date_to = models.DateField()
+    date_from = models.DateField(default=timezone.now)
+    date_to = models.DateField(default=timezone.now)
     guest = models.CharField(max_length=2 , choices=COUNT, default='1')
     children = models.CharField(max_length=2, choices=COUNT, default='0')
     total_price = models.DecimalField(max_digits=10, decimal_places=2)

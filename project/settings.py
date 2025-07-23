@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'settings.apps.SettingsConfig',
     'about.apps.AboutConfig',
     'taggit',  # For taggable manager in blog app
+    'django_summernote',  # For rich text editor in blog app
+    "bootstrap4", # For Bootstrap 4 integration
+    'django_filters', # For filtering in property app
 ]
 
 MIDDLEWARE = [
