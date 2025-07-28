@@ -13,19 +13,19 @@
     <link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/animate.css' %}">
 
-    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">">
-    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">">
-    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
 
     <link rel="stylesheet" href="{% static 'css/aos.css' %}">
 
-    <link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">">
+    <link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
 
-    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">">
-    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
 
 
-    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">>
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
     <link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
@@ -34,7 +34,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
         <div class="container">
-            <a class="navbar-brand" href="index.html">dirEngine.</a>
+            <a class="navbar-brand" href="/">{{my_footer.site_name}}</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav"
                 aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="oi oi-menu"></span> Menu
@@ -42,13 +42,12 @@
 
             <div class="collapse navbar-collapse" id="ftco-nav">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
-                    <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
-                    <li class="nav-item"><a href="tour.html" class="nav-link">Tour</a></li>
-                    <li class="nav-item active"><a href="hotel.html" class="nav-link">Hotels</a></li>
-                    <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
-                    <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
-                    <li class="nav-item cta"><a href="contact.html" class="nav-link"><span>Add listing</span></a></li>
+                    <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="{% url 'about:about_list'%}" class="nav-link">About</a></li>
+                    <li class="nav-item"><a href="{% url 'property:property_list'%}" class="nav-link">property</a></li>
+                    <li class="nav-item"><a href="{% url 'blog:post_list'%}" class="nav-link">Blog</a></li>
+                    <li class="nav-item"><a href="{% url 'home:contact_us'%}" class="nav-link">Contact</a></li>
+                    <li class="nav-item cta"><a href="{% url 'home:contact_us'%}" class="nav-link"><span>Add listing</span></a></li>
                 </ul>
             </div>
         </div>
@@ -64,13 +63,12 @@
             <div class="row mb-5">
                 <div class="col-md">
                     <div class="ftco-footer-widget mb-4">
-                        <h2 class="ftco-heading-2">dirEngine</h2>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia,
-                            there live the blind texts.</p>
+                        <h2 class="ftco-heading-2">{{my_footer.site_name}}</h2>
+                        <p>{{my_footer.description|safe}}</p>
                         <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-5">
-                            <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li>
-                            <li class="ftco-animate"><a href="#"><span class="icon-facebook"></span></a></li>
-                            <li class="ftco-animate"><a href="#"><span class="icon-instagram"></span></a></li>
+                            <li class="ftco-animate"><a href="{{my_footer.twitter_link}}"><span class="icon-twitter"></span></a></li>
+                            <li class="ftco-animate"><a href="{{my_footer.facebook_link}}"><span class="icon-facebook"></span></a></li>
+                            <li class="ftco-animate"><a href="{{my_footer.instagram_link}}"><span class="icon-instagram"></span></a></li>
                         </ul>
                     </div>
                 </div>
@@ -104,12 +102,10 @@
                         <h2 class="ftco-heading-2">Have a Questions?</h2>
                         <div class="block-23 mb-3">
                             <ul>
-                                <li><span class="icon icon-map-marker"></span><span class="text">203 Fake St. Mountain
-                                        View, San Francisco, California, USA</span></li>
-                                <li><a href="#"><span class="icon icon-phone"></span><span class="text">+2 392 3929
-                                            210</span></a></li>
+                                <li><span class="icon icon-map-marker"></span><span class="text">{{my_footer.address}}</span></li>
+                                <li><a href="#"><span class="icon icon-phone"></span><span class="text">{{my_footer.phone}}</span></a></li>
                                 <li><a href="#"><span class="icon icon-envelope"></span><span
-                                            class="text">info@yourdomain.com</span></a></li>
+                                            class="text">{{my_footer.email}}</span></a></li>
                             </ul>
                         </div>
                     </div>
