@@ -15,20 +15,28 @@
 		</div>
 	</div>
 </div>
-<div class="row">
-    <div class="col-md-4 mx-auto mt-5 mb-5">
-
-
-		<form method="POST">
-			{% csrf_token %}
-			{% bootstrap_form signup_form %}
-			{% buttons %}
-				<button type="submit" class="btn btn-primary py-3">Signup</button>
-			{% endbuttons %}
-		</form>
-    
+<section class="ftco-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mx-auto ftco-animate">
+                <div class="p-5 bg-light">
+                    <h3 class="mb-4 text-center">Create Your Account</h3>
+                    <p class="mb-4 text-center">Join our community to access exclusive features and services.</p>
+                    <form method="POST" class="p-3">
+                        {% csrf_token %}
+                        {% bootstrap_form signup_form %}
+                        {% buttons %}
+                            <button type="submit" class="btn btn-primary py-3 px-5 w-100">Sign Up</button>
+                        {% endbuttons %}
+                    </form>
+                    <div class="mt-4 text-center">
+                        <p>Already have an account? <a href="{% url 'login' %}" class="text-primary">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
 
 {% endblock content %}

@@ -12,39 +12,73 @@
 		</div>
 	</div>
 </div>
-<div class="m-5">
-    {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
-    {% endif %}
-    
-    {% if next %}
-        {% if user.is_authenticated %}
-        <p>Your account doesn't have access to this page. To proceed,
-        please login with an account that has access.</p>
-        {% else %}
-        <p>Please login to see this page.</p>
-        {% endif %}
-    {% endif %}
-    
-    <form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <table>
-    <tr>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-    </tr>
-    <tr>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-    </tr>
-    </table>
-    
-    <input type="submit" value="login">
-    <input type="hidden" name="next" value="{{ next }}">
-    </form>
-    
-    {# Assumes you setup the password_reset view in your URLconf #}
-    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
-</div>
+<section class="ftco-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mx-auto ftco-animate">
+                <div class="p-5 bg-light">
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="icon-exclamation-triangle mr-2"></i>
+                        <p class="mb-0">The username and password do not match. Please try again.</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if next %}
+                        {% if user.is_authenticated %}
+                        <div class="alert alert-warning">
+                            <i class="icon-shield mr-2"></i>
+                            <p class="mb-0">Your account does not have permission to access this page. To continue, please log in with an account that has permission.</p>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <i class="icon-lock mr-2"></i>
+                            <p class="mb-0">You need to be logged in to access this page. Please log in with your credentials.</p>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {% if message.tags == 'success' %}
+                                    <i class="icon-check-circle mr-2"></i>
+                                {% elif message.tags == 'info' %}
+                                    <i class="icon-info-circle mr-2"></i>
+                                {% elif message.tags == 'warning' %}
+                                    <i class="icon-exclamation-circle mr-2"></i>
+                                {% elif message.tags == 'error' %}
+                                    <i class="icon-times-circle mr-2"></i>
+                                {% endif %}
+                                <p class="mb-0">{{ message }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'login' %}" class="p-3">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_username">username :</label>
+                            {{ form.username }}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_password">password :</label>
+                            {{ form.password }}
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value=" login" class="btn btn-primary py-3 px-5">
+                            <input type="hidden" name="next" value="{{ next }}">
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 text-center">
+                        <p><a href="{% url 'password_reset' %}" class="text-primary">Forgot your password?</a></p>
+                        <p>Don't you have an account? <a href="{% url 'accounts:signup' %}" class="text-primary">Signup now</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 {% endblock content %}

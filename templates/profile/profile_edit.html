@@ -9,25 +9,46 @@
 			data-scrollax-parent="true">
 			<div class="col-md-9 ftco-animate text-center" data-scrollax=" properties: { translateY: '70%' }">
 				<p class="breadcrumbs" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }"><span
-						class="mr-2"><a href="{% url 'home:home_index'%}">Home</a></span> <span>Profile Edit</span></p>
-				<h1 class="mb-3 bread" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Profile Edit</h1>
+						class="mr-2"><a href="{% url 'home:home_index'%}">Home</a></span> <span>Edit Profile</span></p>
+				<h1 class="mb-3 bread" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Edit Your Profile</h1>
 			</div>
 		</div>
 	</div>
 </div>
-<div class="row">
-    <div class="col-md-4 mx-auto mt-5 mb-5">
-        <form action="" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% bootstrap_form user_form %}
-            {% bootstrap_form profile_form %}
-            {% buttons %}
-                <button type="submit" class="btn btn-primary py-3">Edit Profile</button>
-            {% endbuttons %}
-        
-        </form>
+<section class="ftco-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto ftco-animate">
+                <div class="p-5 bg-light">
+                    <h3 class="mb-4 text-center">Update Your Profile Information</h3>
+                    <form action="" method="POST" enctype="multipart/form-data" class="p-3">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Account Information</h5>
+                                {% bootstrap_form user_form %}
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Profile Details</h5>
+                                {% bootstrap_form profile_form %}
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6 mx-auto">
+                                {% buttons %}
+                                    <button type="submit" class="btn btn-primary py-3 px-5 w-100">Save Changes</button>
+                                {% endbuttons %}
+                            </div>
+                        </div>
+                    </form>
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'accounts:profile' %}" class="text-primary">Cancel and return to profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
 
  {% endblock %}

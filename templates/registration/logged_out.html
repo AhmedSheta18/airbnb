@@ -13,12 +13,22 @@
 		</div>
 	</div>
 </div>
-<div class="row">
-    <div class="col-md-6 mx-auto mt-5 mb-5">
-      <p>Logged out!</p>  
-      <a href="{% url 'login'%}">Click here to login again.</a>
-    
+<section class="ftco-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mx-auto ftco-animate">
+                <div class="p-5 bg-light text-center">
+                    <div class="icon mb-4">
+                        <span class="icon-check-circle" style="font-size: 4rem; color: #1ABC9C;"></span>
+                    </div>
+                    <h3 class="mb-4">Logged out successfully!</h3>
+                    <p class="mb-4">Thank you for visiting our website. We hope to see you again soon.</p>
+                    <a href="{% url 'login'%}" class="btn btn-primary py-3 px-5">Login again</a>
+                    <a href="{% url 'home:home_index'%}" class="btn btn-outline-primary py-3 px-5 ml-2">Return to the home</a>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
 {% endblock %}

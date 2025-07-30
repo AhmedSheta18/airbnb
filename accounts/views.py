@@ -2,8 +2,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import Profile
 from .forms import UserForm , ProfileForm , UserCreateForm
 from django.urls import reverse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 # from property.models import Property, PropertyBook, PropertyReview
 # from property.forms import PropertyReviewForm
 # Create your views here.
@@ -27,12 +28,14 @@ def signup(request):
 
 
 
+@login_required(login_url='login')
 def profile(request):
     profile = Profile.objects.get(user = request.user)
     return render(request,'profile/profile.html',{'profile':profile})
 
 
 
+@login_required(login_url='login')
 def profile_edit(request):
     profile = Profile.objects.get(user = request.user)
     if request.method == 'POST':
@@ -92,7 +95,11 @@ def profile_edit(request):
 #         return render(request,'profile/property_feedback.html' , {'form':form , 'property':property})
 
 
-
+def custom_logout(request):
+    print("Custom logout view called")
+    logout(request)
+    messages.success(request, 'You have been successfully logged out.')
+    return redirect('login')
 
 
 
