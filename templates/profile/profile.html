@@ -1,15 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<div class="hero-wrap js-fullheight" style="background-image: url({% static 'images/bg_5.jpg' %});">
+<div class="hero-wrap js-fullheight" style="background-image: url({% static 'images/bg_4.jpg' %});">
 	<div class="overlay"></div>
 	<div class="container">
 		<div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center"
 			data-scrollax-parent="true">
 			<div class="col-md-9 ftco-animate text-center" data-scrollax=" properties: { translateY: '70%' }">
-				<p class="breadcrumbs" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }"><span
-						class="mr-2"><a href="{% url 'home:home_index'%}">Home</a></span> <span>profile</span></p>
-				<h1 class="mb-3 bread" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Profile</h1>
+				<p class="breadcrumbs" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">
+					<span class="mr-2"><a href="{% url 'home:home_index'%}">Home</a></span> 
+					<span class="mr-2"><a href="{% url 'accounts:profile' %}">Profile</a></span>
+				</p>
+				<h1 class="mb-3 bread" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">My Profile</h1>
 			</div>
 		</div>
 	</div>
@@ -17,75 +19,106 @@
 <section class="ftco-section">
     <div class="container">
         <div class="row">
-            <div class="col-md-8 mx-auto ftco-animate">
-                <div class="p-5 bg-light">
-                    <div class="row">
-                        <div class="col-md-4 text-center mb-4">
-                            {% if profile.image %}
-                            <img src="{{ profile.image.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 200px; height: 200px; object-fit: cover;">
-                            {% else %}
-                            <img src="{% static 'images/person_3.jpg' %}" alt="Default Profile Picture" class="img-fluid rounded-circle" style="width: 200px; height: 200px; object-fit: cover;">
-                            {% endif %}
-                            <h3 class="mt-3">{{profile.user.username}}</h3>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="profile-info">
-                                <h4 class="mb-4">Account information</h4>
-                                <div class="d-flex mb-3">
-                                    <div class="icon mr-3"><span class="icon-user"></span></div>
-                                    <div>
-                                        <h5>Name</h5>
-                                        <p>{{profile.user.username}}</p>
-                                    </div>
+            <div class="col-md-10 mx-auto ftco-animate">
+                <div class="card shadow">
+                    <div class="card-body p-5">
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-image-container mb-4">
+                                    {% if profile.image %}
+                                    <img src="{{ profile.image.url }}" alt="Profile Picture" class="img-fluid rounded-circle shadow" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #f8f9fa;">
+                                    {% else %}
+                                    <img src="{% static 'images/person_3.jpg' %}" alt="Default Profile Picture" class="img-fluid rounded-circle shadow" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #f8f9fa;">
+                                    {% endif %}
                                 </div>
-                                <div class="d-flex mb-3">
-                                    <div class="icon mr-3"><span class="icon-envelope"></span></div>
-                                    <div>
-                                        <h5>Email</h5>
-                                        <p>{{profile.user.email}}</p>
+                                <h3 class="font-weight-bold">{{profile.user.username}}</h3>
+                                <p class="text-muted">Member since {{ profile.user.date_joined|date:"F Y" }}</p>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="profile-info">
+                                    <div class="d-flex align-items-center mb-4">
+                                        <div class="icon-circle bg-primary text-white mr-3">
+                                            <span class="icon-user"></span>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-weight-bold mb-1">Account Information</h5>
+                                            <p class="text-muted mb-0">Your personal details</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="d-flex mb-3">
-                                    <div class="icon mr-3"><span class="icon-phone"></span></div>
-                                    <div>
-                                        <h5> Phone Number </h5>
-                                        <p>{{profile.phone_number|default:"Not available"}}</p>
+                                    
+                                    <div class="card mb-4">
+                                        <div class="card-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-4">
+                                                    <p class="text-muted mb-0">Full Name</p>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <p class="font-weight-bold mb-0">{{profile.user.username}}</p>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-4">
+                                                    <p class="text-muted mb-0">Email</p>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <p class="font-weight-bold mb-0">{{profile.user.email}}</p>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-4">
+                                                    <p class="text-muted mb-0">Phone Number</p>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <p class="font-weight-bold mb-0">{{profile.phone_number|default:"Not available"}}</p>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <p class="text-muted mb-0">Address</p>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <p class="font-weight-bold mb-0">{{profile.address|default:"Not available"}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="d-flex mb-3">
-                                    <div class="icon mr-3"><span class="icon-map-marker"></span></div>
-                                    <div>
-                                        <h5>Address</h5>
-                                        <p>{{profile.address|default:"Not available"}}</p>
+                                    
+                                    <div class="profile-actions">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary btn-block py-3">
+                                                    <span class="icon-edit mr-2"></span> Edit Profile
+                                                </a>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <a href="{% url 'password_change' %}" class="btn btn-info btn-block py-3">
+                                                    <span class="icon-lock mr-2"></span> Change Password
+                                                </a>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <a href="{% url 'accounts:my_reservation' %}" class="btn btn-success btn-block py-3">
+                                                    <span class="icon-calendar mr-2"></span> My Bookings
+                                                </a>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <a href="{% url 'accounts:my_properties' %}" class="btn btn-warning btn-block py-3">
+                                                    <span class="icon-home mr-2"></span> My Properties
+                                                </a>
+                                            </div>
+                                            <div class="col-md-12 mb-3">
+                                                <form method="POST" action="{% url 'logout' %}">
+                                                    {% csrf_token %}
+                                                    <button class="btn btn-danger btn-block py-3" type="submit">
+                                                        <span class="icon-sign-out mr-2"></span> Logout
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row mt-5">
-                        <div class="col-md-12">
-                            <div class="profile-actions text-center">
-                                <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary py-3 px-4 mr-2"><span class="icon-edit"></span> Edit Profile</a>
-                                <a href="{% url 'password_change' %}" class="btn btn-info py-3 px-4 mr-2"><span class="icon-lock"></span> Change password</a>
-                                {% comment %} <a href="{% url 'logout' %}" class="btn btn-danger py-3 px-4"><span class="icon-sign-out"></span> Log out</a> {% endcomment %}
-                                <hr>
-                                <form method="POST" action="{% url 'logout' %}">
-                                    {% csrf_token %}
-                                     <button class="btn btn-danger py-3 px-4" type="submit">
-                                        <span class="icon-sign-out"></span> Logout
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    {% comment %}
-                    <div class="row mt-5">
-                        <div class="col-md-12">
-                            <h4 class="mb-4">My bookings</h4>
-                            <a href="{% url 'accounts:my_reservation' %}" class="btn btn-outline-primary">Show my bookings</a>
-                        </div>
-                    </div>
-                    {% endcomment %}
                 </div>
             </div>
         </div>

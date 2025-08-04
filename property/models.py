@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.text import slugify
 from django.urls import reverse
+from django.db.models import Avg
 
 # Create your models here.
 class Property(models.Model):
@@ -27,6 +28,10 @@ class Property(models.Model):
     def get_absolute_url(self):
         return reverse('property:property_detail', kwargs={'slug': self.slug})
     
+    def get_avg_rating(self):
+        avg = self.review_property.aggregate(avg_rating=Avg('rating'))['avg_rating']
+        return avg if avg else 0
+
 
 
 class PropertyImage(models.Model):

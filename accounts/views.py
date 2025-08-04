@@ -2,11 +2,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import Profile
 from .forms import UserForm , ProfileForm , UserCreateForm
 from django.urls import reverse
+from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-# from property.models import Property, PropertyBook, PropertyReview
-# from property.forms import PropertyReviewForm
+from property.models import Property, PropertyBooking, PropertyReview, PropertyImage
+from property.forms import PropertyReviewForm
+from django.http import Http404
 # Create your views here.
 
 def signup(request):
@@ -61,38 +63,71 @@ def profile_edit(request):
 
 
 
-# def my_reservation(request):
-#     user_reservation = PropertyBook.objects.filter(name=request.user)
-#     return render(request,'profile/my_reservation.html' , {'user_reservation':user_reservation})
+def my_reservation(request):
+    now = timezone.now().date()
+    
+    user_reservation = PropertyBooking.objects.filter(user=request.user)
+    
+    # Get all properties that the user has booked
+    booked_properties = user_reservation.values_list('property', flat=True).distinct()
+    
+    # Get all reviews by the user for these properties
+    user_reviews = PropertyReview.objects.filter(user=request.user, property__in=booked_properties)
+    
+    # Create a dictionary of property_id -> review for quick lookup
+    reviewed_properties = {review.property_id: review for review in user_reviews}
+    
+    # Add a 'has_review' flag to each reservation
+    for reservation in user_reservation:
+        reservation.has_review = reservation.property_id in reviewed_properties
+        if reservation.has_review:
+            reservation.review = reviewed_properties[reservation.property_id]
+    
+    return render(request, 'profile/my_reservation.html', {
+        'user_reservation': user_reservation,
+        'now': now,
+    })
 
 
-# def add_feedback(request , slug):
-#     property = get_object_or_404(Property , slug=slug)
-
-#     try:
-#         user_feedback = get_object_or_404(PropertyReview , property=property , author=request.user)
-#         if request.method == 'POST':
-#             form = PropertyReviewForm(request.POST , instance=user_feedback)
-#             if form.is_valid():
-#                 form.save()
-
-#         else:
-#             form = PropertyReviewForm(instance=user_feedback)
-#         return render(request,'profile/property_feedback.html' , {'form':form , 'property':property})
-
-
-#     except:
-#         if request.method == 'POST':
-#             form = PropertyReviewForm(request.POST)
-#             if form.is_valid():
-#                 myform = form.save(commit=False)
-#                 myform.property = property
-#                 myform.author = request.user
-#                 myform.save()
-
-#         else:
-#             form = PropertyReviewForm()
-#         return render(request,'profile/property_feedback.html' , {'form':form , 'property':property})
+@login_required(login_url='login')
+def add_feedback(request, slug):
+    property = get_object_or_404(Property, slug=slug)
+    
+    # Check if user has already reviewed this property
+    try:
+        user_feedback = PropertyReview.objects.get(property=property, user=request.user)
+        is_update = True
+    except PropertyReview.DoesNotExist:
+        user_feedback = None
+        is_update = False
+    
+    if request.method == 'POST':
+        if is_update:
+            form = PropertyReviewForm(request.POST, instance=user_feedback)
+            success_message = 'Your review has been updated successfully!'
+        else:
+            form = PropertyReviewForm(request.POST)
+            success_message = 'Thank you for your review!'
+            
+        if form.is_valid():
+            myform = form.save(commit=False)
+            myform.property = property
+            myform.user = request.user
+            myform.save()
+            messages.success(request, success_message)
+            return redirect('accounts:my_reservation')
+    else:
+        if is_update:
+            form = PropertyReviewForm(instance=user_feedback)
+        else:
+            form = PropertyReviewForm()
+    
+    context = {
+        'form': form,
+        'property': property,
+        'is_update': is_update
+    }
+    return render(request, 'profile/property_feedback.html', context)
 
 
 def custom_logout(request):
@@ -101,6 +136,39 @@ def custom_logout(request):
     messages.success(request, 'You have been successfully logged out.')
     return redirect('login')
 
+
+@login_required(login_url='login')
+def my_properties(request):
+    from django.utils import timezone
+    now = timezone.now().date()
+    
+    # Get all properties owned by the user
+    user_properties = Property.objects.filter(owner=request.user)
+    
+    # Get booking statistics for each property
+    for prop in user_properties:
+        prop.total_bookings = PropertyBooking.objects.filter(property=prop).count()
+        prop.active_bookings = PropertyBooking.objects.filter(
+            property=prop, 
+            date_from__lte=now, 
+            date_to__gte=now
+        ).count()
+        prop.upcoming_bookings = PropertyBooking.objects.filter(
+            property=prop, 
+            date_from__gt=now
+        ).count()
+        prop.completed_bookings = PropertyBooking.objects.filter(
+            property=prop, 
+            date_to__lt=now
+        ).count()
+        
+        # Get additional images
+        prop.additional_images = PropertyImage.objects.filter(property=prop)
+    
+    return render(request, 'profile/my_properties.html', {
+        'user_properties': user_properties,
+        'now': now,
+    })
 
 
 '''
@@ -117,3 +185,39 @@ def custom_logout(request):
         return render(request,'profile/property_feedback.html' , {'form':form , 'property':property})
 
         '''
+
+@login_required(login_url='login')
+def booking_details(request, booking_id):
+    from django.utils import timezone
+    now = timezone.now().date()
+    
+    try:
+        # Get the booking and ensure it belongs to the current user
+        booking = get_object_or_404(PropertyBooking, id=booking_id)
+        
+        if booking.user != request.user:
+            raise Http404("You don't have permission to view this booking.")
+        
+        # Check if user has already reviewed this property
+        try:
+            user_review = PropertyReview.objects.get(property=booking.property, user=request.user)
+            booking.has_review = True
+            booking.review = user_review
+        except PropertyReview.DoesNotExist:
+            booking.has_review = False
+            booking.review = None
+        
+        # Get additional property images
+        property_images = PropertyImage.objects.filter(property=booking.property)
+        
+        context = {
+            'booking': booking,
+            'property_images': property_images,
+            'now': now,
+        }
+        
+        return render(request, 'profile/booking_details.html', context)
+    
+    except PropertyBooking.DoesNotExist:
+        messages.error(request, 'Booking not found.')
+        return redirect('accounts:my_reservation')

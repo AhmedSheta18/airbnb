@@ -2,9 +2,88 @@
 {% load static %}
 {% load bootstrap4 %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    /* Calendar styling */
+    .flatpickr-calendar {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+    .flatpickr-day.flatpickr-disabled {
+        background-color: #ffebee;
+        color: #ff5252;
+        text-decoration: line-through;
+    }
+    .calendar-legend {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 0 10px;
+        font-size: 14px;
+    }
+    .legend-color {
+        width: 15px;
+        height: 15px;
+        margin-right: 5px;
+        border-radius: 3px;
+    }
+    .available-color {
+        background-color: #c8e6c9;
+    }
+    .booked-color {
+        background-color: #ffebee;
+    }
+    
+    /* Review styling */
+    .review-item {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 20px 0;
+    }
+    .review-item:last-child {
+        border-bottom: none;
+    }
+    .reviewer-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .review-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .review-meta .name {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+    .review-meta .date {
+        color: #999;
+        font-size: 14px;
+    }
+    .load-more-btn {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        color: #333;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .load-more-btn:hover {
+        background-color: #e9ecef;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<div class="hero-wrap js-fullheight" style="background-image: url({% static 'images/bg_5.jpg' %});">
+<div class="hero-wrap js-fullheight" style="background-image: url({% static 'images/bg_2.jpg' %});">
     <div class="overlay"></div>
     <div class="container">
         <div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center"
@@ -44,12 +123,17 @@
                         <p class="rate mb-5">
                             <span class="loc"><a href="#"><i class="icon-map"></i> {{object.location}}</a></span>
                             <span class="star">
-                                <i class="icon-star"></i>
-                                <i class="icon-star"></i>
-                                <i class="icon-star"></i>
-                                <i class="icon-star"></i>
-                                <i class="icon-star-o"></i>
-                                8 Rating</span>
+                                {% with avg_rating=object.get_avg_rating %}
+                                {% for i in '12345' %}
+                                    {% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}
+                                        <i class="icon-star"></i>
+                                    {% else %}
+                                        <i class="icon-star-o"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                {{ object.propertyreview_set.count }} {{object.get_avg_rating}} Rating{{ object.propertyreview_set.count|pluralize }}
+                                {% endwith %}
+                            </span>
                         </p>
                         <p>
                             {{object.description|safe}}
@@ -58,18 +142,38 @@
                     </div>
                     <div class="col-md-12 hotel-single ftco-animate mb-5 mt-4">
                         <h4 class="mb-5">Check Availability &amp; Booking</h4>
+                        
+                        {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
                         <div class="fields">
                             <div class="row">
-
-
-                                <form method="post" class="form">
-                                    {% csrf_token %}
-                                    {% bootstrap_form form %}
-                                    {% buttons %}
-                                        <button type="submit" class="btn btn-primary">Submit</button>
-                                    {% endbuttons %}
-                                </form>
-
+                                <div class="col-md-9 mx-auto">
+                                    <div class="card mb-4">
+                                        <div class="card-header bg-primary text-white">
+                                            <h5 class="mb-0">Booking Form</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form method="post" class="form">
+                                                {% csrf_token %}
+                                                {% bootstrap_form form %}
+                                                {% buttons %}
+                                                    <button type="submit" class="btn btn-primary btn-block">Book Now</button>
+                                                {% endbuttons %}
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                                 
                             </div>
                         </div>
@@ -78,49 +182,79 @@
                         <h4 class="mb-4">Review &amp; Ratings</h4>
                         <div class="row">
                             <div class="col-md-6">
-                                <form method="post" class="star-rating">
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                        <label class="form-check-label" for="exampleCheck1">
-                                            <p class="rate"><span><i class="icon-star"></i><i class="icon-star"></i><i
-                                                        class="icon-star"></i><i class="icon-star"></i><i
-                                                        class="icon-star"></i> 100 Ratings</span></p>
-                                        </label>
+                                <div class="rating-summary">
+                                    {% with avg_rating=object.get_avg_rating %}
+                                    <div class="d-flex align-items-center mb-3">
+                                        <h3 class="mb-0 mr-2">{{ avg_rating|floatformat:1 }}</h3>
+                                        <div>
+                                            <div class="star-rating">
+                                                {% for i in '12345' %}
+                                                    {% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}
+                                                        <i class="icon-star"></i>
+                                                    {% else %}
+                                                        <i class="icon-star-o"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <div class="text-muted small">{{ object.propertyreview_set.count }} review{{ object.propertyreview_set.count|pluralize }}</div>
+                                        </div>
                                     </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                        <label class="form-check-label" for="exampleCheck1">
-                                            <p class="rate"><span><i class="icon-star"></i><i class="icon-star"></i><i
-                                                        class="icon-star"></i><i class="icon-star"></i><i
-                                                        class="icon-star-o"></i> 30 Ratings</span></p>
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                        <label class="form-check-label" for="exampleCheck1">
-                                            <p class="rate"><span><i class="icon-star"></i><i class="icon-star"></i><i
-                                                        class="icon-star"></i><i class="icon-star-o"></i><i
-                                                        class="icon-star-o"></i> 5 Ratings</span></p>
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                        <label class="form-check-label" for="exampleCheck1">
-                                            <p class="rate"><span><i class="icon-star"></i><i class="icon-star"></i><i
-                                                        class="icon-star-o"></i><i class="icon-star-o"></i><i
-                                                        class="icon-star-o"></i> 0 Ratings</span></p>
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                        <label class="form-check-label" for="exampleCheck1">
-                                            <p class="rate"><span><i class="icon-star"></i><i class="icon-star-o"></i><i
-                                                        class="icon-star-o"></i><i class="icon-star-o"></i><i
-                                                        class="icon-star-o"></i> 0 Ratings</span></p>
-                                        </label>
-                                    </div>
-                                </form>
+                                    {% endwith %}
+                                </div>
                             </div>
+                        </div>
+                        
+                        <!-- Reviews List -->
+                        <div class="reviews-list mt-4">
+                            {% if object.review_property.all %}
+                                {% for review in object.review_property.all %}
+                                <div class="review-item card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <div class="reviewer-avatar mr-3">
+                                                    {% if review.user.profile.image %}
+                                                        <img src="{{ review.user.profile.image.url }}" alt="{{ review.user.username }}" class="rounded-circle" width="50" height="50">
+                                                    {% else %}
+                                                        <div class="avatar-placeholder rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                            {{ review.user.username|make_list|first|upper }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <h5 class="card-title mb-0">{{ review.user.username }}</h5>
+                                                    <div class="star-rating">
+                                                        {% for i in '12345' %}
+                                                            {% if forloop.counter <= review.rating %}
+                                                                <i class="icon-star text-warning"></i>
+                                                            {% else %}
+                                                                <i class="icon-star-o"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">{{ review.create_at|date:"F d, Y" }}</small>
+                                        </div>
+                                        <div class="mt-3">
+                                            <p class="card-text">{{ review.comment }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                
+                                <!-- Pagination for reviews if needed -->
+                                {% if object.review_property.all.count > 5 %}
+                                <div class="mt-4 d-flex justify-content-center">
+                                    <button id="load-more-reviews" class="btn btn-outline-primary">Load More Reviews</button>
+                                </div>
+                                {% endif %}
+                                
+                            {% else %}
+                                <div class="alert alert-info">
+                                    No reviews yet. Be the first to leave a review!
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="col-md-12 hotel-single ftco-animate mb-5 mt-5">
@@ -138,12 +272,16 @@
                                             <div class="one">
                                                 <h3><a href="{{property.get_absolute_url}}">{{property.name}}</a></h3>
                                                 <p class="rate">
-                                                    <i class="icon-star"></i>
-                                                    <i class="icon-star"></i>
-                                                    <i class="icon-star"></i>
-                                                    <i class="icon-star"></i>
-                                                    <i class="icon-star-o"></i>
-                                                    <span>8 Rating</span>
+                                                    {% with avg_rating=property.get_avg_rating %}
+                                                    {% for i in '12345' %}
+                                                        {% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}
+                                                            <i class="icon-star"></i>
+                                                        {% else %}
+                                                            <i class="icon-star-o"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    <span>{{ property.review_property.count }} Rating{{ property.review_property.count|pluralize }}</span>
+                                                    {% endwith %}
                                                 </p>
                                             </div>
                                             <div class="two">

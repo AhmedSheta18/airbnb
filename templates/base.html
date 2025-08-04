@@ -81,9 +81,9 @@
                     {% endif %}
                     <li class="nav-item cta">
                         {% if user.is_authenticated %}
-                            <a href="{% url 'home:contact_us'%}" class="nav-link"><span>Add Listing</span></a>
+                            <a href="{% url 'property:add_property' %}" class="nav-link"><span>Add Listing</span></a>
                         {% else %}
-                            <a href="{% url 'login' %}?next={% url 'home:contact_us' %}" class="nav-link"><span>Add Listing</span></a>
+                            <a href="{% url 'login' %}?next={% url 'property:add_property' %}" class="nav-link"><span>Add Listing</span></a>
                         {% endif %}
                     </li>
                 </ul>
@@ -192,6 +192,9 @@
     </script>
     <script src="{% static 'js/google-map.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    
+    {% block extra_js %}
+    {% endblock %}
 
 </body>
 

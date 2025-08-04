@@ -3,7 +3,7 @@
 {% load bootstrap4 %}
 {% block content %}
 
-<div class="hero-wrap js-fullheight" style="background-image: url({% static 'images/bg_5.jpg' %});">
+<div class="hero-wrap js-fullheight" style="background-image: url({% static 'images/bg_3.jpg' %})">
 	<div class="overlay"></div>
 	<div class="container">
 		<div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center"
@@ -11,8 +11,9 @@
 			<div class="col-md-9 ftco-animate text-center" data-scrollax=" properties: { translateY: '70%' }">
 				<p class="breadcrumbs" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }"><span
 						class="mr-2"><a href="{% url 'home:home_index'%}">Home</a></span> <span class="mr-2"><a
-							href="hotel.html">Hotel</a></span> <span>Hotel Single</span></p>
-				<h1 class="mb-3 bread" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Hotels Details
+							href="{% url 'accounts:profile'%}">Profile</a></span> <span class="mr-2"><a
+							href="{% url 'accounts:my_reservation'%}">My Bookings</a></span> <span>Add Review</span></p>
+				<h1 class="mb-3 bread" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Review for {{property.name}}
 				</h1>
 			</div>
 		</div>
@@ -26,90 +27,121 @@
 			<div class="col-lg-10 mx-auto">
 				<div class="row">
 					<div class="col-md-12 ftco-animate">
-						<div class="single-slider owl-carousel">
-
-							{% for property_image in property_images %}
-							<div class="item">
-								<div class="hotel-img" style="background-image: url({{property_image.image.url}});">
+						<div class="row">
+							<div class="col-md-4">
+								<div class="card mb-4">
+									<img src="{{property.image.url}}" class="card-img-top" alt="{{property.name}}" style="height: 200px; object-fit: cover;">
+									<div class="card-body">
+										<h5 class="card-title">{{property.name}}</h5>
+										<p class="card-text">
+											<span class="d-block mb-2"><i class="icon-map-o text-primary mr-1"></i> {{property.location}}</span>
+											<span class="d-block mb-2"><i class="icon-tag text-primary mr-1"></i> {{property.category}}</span>
+											<span class="d-block"><i class="icon-wallet text-primary mr-1"></i> ${{property.price}}/night</span>
+										</p>
+										
+										<!-- Average Rating Display -->
+										<div class="mt-3">
+											<h6 class="mb-2">Average Rating</h6>
+											<div class="d-flex align-items-center">
+												<span class="text-warning">
+													{% with avg_rating=property.get_avg_rating %}
+													{% for i in '12345'|make_list %}
+														{% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}
+														<i class="icon-star"></i>
+														{% else %}
+														<i class="icon-star-o"></i>
+														{% endif %}
+													{% endfor %}
+												</span>
+												<span class="ml-2 text-muted">
+													{% with total_reviews=property.review_property.all|length %}
+													{% if total_reviews > 0 %}
+													<strong>{{ avg_rating|floatformat:1 }}</strong>/5 ({{ total_reviews }} {% if total_reviews == 1 %}review{% else %}reviews{% endif %})
+													{% else %}
+													No reviews yet
+													{% endif %}
+													{% endwith %}
+												</span>
+												{% endwith %}
+											</div>
+										</div>
+									</div>
+									<div class="card-footer bg-white">
+										<a href="{% url 'accounts:my_reservation' %}" class="btn btn-outline-secondary btn-block">
+											<i class="icon-arrow-left mr-1"></i> Back to My Bookings
+										</a>
+									</div>
 								</div>
 							</div>
-							{% endfor %}
-						</div>
-					</div>
-					<div class="col-md-12 hotel-single mt-4 mb-5 ftco-animate">
-						<span>Our Best hotels &amp; Rooms</span>
-						<h2>{{property}}</h2>
-						<p class="rate mb-5">
-							<span class="loc"><a href="#"><i class="icon-map"></i> {{property.place}}</a></span>
-							<span class="star">
-								<i class="icon-star"></i>
-								<i class="icon-star"></i>
-								<i class="icon-star"></i>
-								<i class="icon-star"></i>
-								<i class="icon-star-o"></i>
-								{{review_count}} Rating</span>
-						</p>
-						<p> {{property.description|safe}}</p>
-
-					</div>
-
-
-					<div class="col-md-12 hotel-single ftco-animate mb-5 mt-4">
-						<h4 class="mb-5">Add Your &amp; Feedback</h4>
-						<form method=POST>
-						 {% csrf_token %}
-						     {% bootstrap_form form %}
-							{% buttons %}
-								<button type="submit" class="btn btn-primary py-3">Add Review</button>
-							{% endbuttons %}
-						</form>
-					</div>
-					<div class="col-md-12 hotel-single ftco-animate mb-5 mt-4">
-						<h4 class="mb-4">Review &amp; Ratings</h4>
-						<div class="row">
-							<div class="col-md-6">
-								<form method="post" class="star-rating">
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="exampleCheck1">
-										<label class="form-check-label" for="exampleCheck1">
-											<p class="rate"><span><i class="icon-star"></i><i class="icon-star"></i><i
-														class="icon-star"></i><i class="icon-star"></i><i
-														class="icon-star"></i> 100 Ratings</span></p>
-										</label>
+							<div class="col-md-8">
+								<div class="card">
+									<div class="card-header bg-primary text-white">
+										<h5 class="mb-0">
+											{% if is_update %}
+											Update Your Review
+											{% else %}
+											Add Your Review
+											{% endif %}
+										</h5>
 									</div>
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="exampleCheck1">
-										<label class="form-check-label" for="exampleCheck1">
-											<p class="rate"><span><i class="icon-star"></i><i class="icon-star"></i><i
-														class="icon-star"></i><i class="icon-star"></i><i
-														class="icon-star-o"></i> 30 Ratings</span></p>
-										</label>
+									<div class="card-body">
+										<form method="POST">
+											{% csrf_token %}
+											{% bootstrap_form form %}
+											<div class="text-right">
+												<a href="{% url 'accounts:my_reservation' %}" class="btn btn-outline-secondary mr-2">
+													<i class="icon-close mr-1"></i> Cancel
+												</a>
+												<button type="submit" class="btn btn-primary">
+													<i class="icon-check mr-1"></i>
+													{% if is_update %}
+													Update Review
+													{% else %}
+													Submit Review
+													{% endif %}
+												</button>
+											</div>
+										</form>
 									</div>
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="exampleCheck1">
-										<label class="form-check-label" for="exampleCheck1">
-											<p class="rate"><span><i class="icon-star"></i><i class="icon-star"></i><i
-														class="icon-star"></i><i class="icon-star-o"></i><i
-														class="icon-star-o"></i> 5 Ratings</span></p>
-										</label>
+								</div>
+								
+								<!-- Property Reviews Section -->
+								<div class="card mt-4">
+									<div class="card-header bg-light">
+										<h5 class="mb-0">Recent Reviews</h5>
 									</div>
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="exampleCheck1">
-										<label class="form-check-label" for="exampleCheck1">
-											<p class="rate"><span><i class="icon-star"></i><i class="icon-star"></i><i
-														class="icon-star-o"></i><i class="icon-star-o"></i><i
-														class="icon-star-o"></i> 0 Ratings</span></p>
-										</label>
+									<div class="card-body">
+										{% with reviews=property.review_property.all %}
+										{% if reviews %}
+											{% for review in reviews|slice:":5" %}
+											<div class="review-item {% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
+												<div class="d-flex justify-content-between align-items-center mb-2">
+													<div>
+														<h6 class="mb-0">{{ review.user.username }}</h6>
+														<small class="text-muted">{{ review.create_at|date:"F d, Y" }}</small>
+													</div>
+													<div class="text-warning">
+														{% for i in '12345'|make_list %}
+															{% if forloop.counter <= review.rating %}
+															<i class="icon-star"></i>
+															{% else %}
+															<i class="icon-star-o"></i>
+															{% endif %}
+														{% endfor %}
+													</div>
+												</div>
+												<p>{{ review.comment }}</p>
+											</div>
+											{% endfor %}
+										{% else %}
+										<div class="text-center py-4">
+											<i class="icon-star-o" style="font-size: 3rem; color: #ccc;"></i>
+											<p class="mt-3 text-muted">No reviews yet. Be the first to review this property!</p>
+										</div>
+										{% endif %}
+										{% endwith %}
 									</div>
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="exampleCheck1">
-										<label class="form-check-label" for="exampleCheck1">
-											<p class="rate"><span><i class="icon-star"></i><i class="icon-star-o"></i><i
-														class="icon-star-o"></i><i class="icon-star-o"></i><i
-														class="icon-star-o"></i> 0 Ratings</span></p>
-										</label>
-									</div>
-								</form>
+								</div>
 							</div>
 						</div>
 					</div>

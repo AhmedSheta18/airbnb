@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% block content %}
+
+<div class="hero-wrap js-fullheight" style="background-image: url({% static 'images/bg_1.jpg' %})">
+	<div class="overlay"></div>
+	<div class="container">
+		<div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center"
+			data-scrollax-parent="true">
+			<div class="col-md-9 ftco-animate text-center" data-scrollax=" properties: { translateY: '70%' }">
+				<p class="breadcrumbs" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }"><span
+						class="mr-2"><a href="{% url 'home:home_index'%}">Home</a></span> <span
+						class="mr-2"><a href="{% url 'accounts:profile'%}">Profile</a></span> <span>My Properties</span></p>
+				<h1 class="mb-3 bread" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">My Properties</h1>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<section class="ftco-section ftco-degree-bg">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-10 mx-auto">
+				<div class="card shadow mb-4">
+					<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+						<h6 class="m-0 font-weight-bold text-primary"><i class="icon-home mr-2"></i>Your Properties ({{ user_properties|length }})</h6>
+						<div>
+							<a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-outline-secondary mr-2"><i class="icon-user mr-1"></i> Back to Profile</a>
+							<a href="{% url 'property:add_property' %}" class="btn btn-sm btn-primary"><i class="icon-plus mr-1"></i> Add New Property</a>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="row">
+							{% for property in user_properties %}	
+							<div class="col-md-6 ftco-animate mb-4">
+								<div class="card h-100 property-card">
+									<div class="position-relative">
+										<a href="{{property.get_absolute_url}}">
+											<img src="{{property.image.url}}" class="card-img-top" alt="{{property.name}}" style="height: 200px; object-fit: cover;">
+										</a>
+										<div class="price-tag position-absolute" style="top: 10px; right: 10px; background-color: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 5px;">
+											<span class="price">${{property.price}}</span><small>/night</small>
+										</div>
+									</div>
+									<div class="card-body">
+										<h5 class="card-title"><a href="{{property.get_absolute_url}}" class="text-dark">{{property.name}}</a></h5>
+										<div class="mb-3">
+											<span class="text-warning">
+												{% with avg_rating=property.get_avg_rating %}
+												{% for i in '12345'|make_list %}
+													{% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}
+													<i class="icon-star"></i>
+													{% else %}
+													<i class="icon-star-o"></i>
+													{% endif %}
+												{% endfor %}
+											</span>
+											<small class="text-muted ml-1">{{property.get_avg_rating}} ({{ property.review_property.all|length }} Reviews)</small>
+											{% endwith %}
+										</div>
+										
+										<!-- Property Stats -->
+										<div class="booking-stats mb-3">
+											<div class="row text-center">
+												<div class="col-3">
+													<div class="stat-box p-2 rounded" style="background-color: #f8f9fa;">
+														<h5 class="mb-0">{{property.total_bookings}}</h5>
+														<small class="text-muted">Total</small>
+													</div>
+												</div>
+												<div class="col-3">
+													<div class="stat-box p-2 rounded" style="background-color: #e8f4f8;">
+														<h5 class="mb-0">{{property.upcoming_bookings}}</h5>
+														<small class="text-muted">Upcoming</small>
+													</div>
+												</div>
+												<div class="col-3">
+													<div class="stat-box p-2 rounded" style="background-color: #e8f8e8;">
+														<h5 class="mb-0">{{property.active_bookings}}</h5>
+														<small class="text-muted">Active</small>
+													</div>
+												</div>
+												<div class="col-3">
+													<div class="stat-box p-2 rounded" style="background-color: #f8f8f8;">
+														<h5 class="mb-0">{{property.completed_bookings}}</h5>
+														<small class="text-muted">Completed</small>
+													</div>
+												</div>
+											</div>
+										</div>
+										
+										<p class="card-text">{{property.description|safe|truncatewords:10}}</p>
+									</div>
+									<div class="card-footer bg-white">
+										<div class="d-flex justify-content-between align-items-center">
+											<span><i class="icon-map-o text-primary mr-1"></i> {{property.location}}</span>
+											<a href="{% url 'property:edit_property' property.slug %}" class="btn btn-sm btn-warning">
+												<i class="icon-edit mr-1"></i> Edit
+											</a>
+										</div>
+										<div class="mt-2">
+											<a href="{{property.get_absolute_url}}" class="btn btn-sm btn-outline-primary btn-block">
+												<i class="icon-eye mr-1"></i> View Property
+											</a>
+										</div>
+									</div>
+								</div>
+							</div>
+							{% empty %}
+							<div class="col-12 text-center py-5">
+								<div class="empty-state">
+									<i class="icon-home" style="font-size: 5rem; color: #ccc;"></i>
+									<h3 class="mt-3">No Properties Found</h3>
+									<p class="text-muted">You haven't added any properties yet.</p>
+									<a href="{% url 'property:add_property' %}" class="btn btn-primary mt-3"><i class="icon-plus mr-2"></i>Add Your First Property</a>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+
+				{% if is_paginated %}
+				<div class="row mt-5">
+					<div class="col text-center">
+						<div class="block-27">
+							<ul>
+								{% if page_obj.has_previous %}
+									<li><a href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
+								{% else %}
+									<li class="disabled"><span>&laquo;</span></li>
+								{% endif %}
+
+								{% for i in paginator.page_range %}
+									{% if page_obj.number == i %}
+										<li class="active"><span>{{ i }}</span></li>
+									{% else %}
+										<li><a href="?page={{ i }}">{{ i }}</a></li>
+									{% endif %}
+								{% endfor %}
+
+								{% if page_obj.has_next %}
+									<li><a href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
+								{% else %}
+									<li class="disabled"><span>&raquo;</span></li>
+								{% endif %}
+							</ul>
+						</div>
+					</div>
+				</div>
+				{% endif %}
+			</div> <!-- .col-md-8 -->
+		</div>
+	</div>
+</section> <!-- .section -->
+
+{% endblock content %}
